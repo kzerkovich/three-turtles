@@ -15,7 +15,7 @@ int NUM_THREADS = 12;
     1) На нечётной стадии выполняется сортировка для элементов с нечётными индексами
     2) На чётной стадии выполняется сортировка для элементов с чётными индексами
 */
-void bubbleSortOE(vector<int> &arr) {
+void bubbleSortOE(vector<int>& arr) {
     int n = arr.size();
     bool isSorted = false;
     while (!isSorted) {
@@ -45,14 +45,14 @@ void bubbleSortOE(vector<int> &arr) {
     5) Оставшиеся элементы добавляем в подмассив с номером NUM_THREADS
     6) Создаём вектор потоков и для каждого подмассива запускаем свой поток
 */
-void pBubbleSort(vector<int> &arr, int n) {
+void pBubbleSort(vector<int>& arr, int n) {
     vector<vector<int>> sublists(NUM_THREADS);
 
     int split = *max_element(arr.begin(), arr.end()) / NUM_THREADS;
 
     for (size_t i = 1; i < NUM_THREADS; i++) {
         for (int j = 0; j < arr.size(); j++) {
-            if (arr[j] < split * i){
+            if (arr[j] < split * i) {
                 auto iter = arr.begin() + j;
                 sublists[i - 1].push_back(arr[j]);
                 arr.erase(iter);
@@ -77,18 +77,33 @@ int main() {
     int n;
     cout << "Enter the size of array:" << endl; cin >> n;
 
-    //Заполнение массива рандомными значениями
-    vector<int> vec(n);
+    //Заполнение массива для параллельной сортировки рандомными значениями
+    vector<int> vec_p(n);
     for (int i = 0; i < n; i++)
-        vec[i] = rand();
-    
-    //Счётчик начала работы сортировки
-    clock_t start = clock();
+        vec_p[i] = rand();
+
+    //Счётчик начала работы параллельной сортировки
+    clock_t start_parallel = clock();
 
     //Параллельная сортировка пузырьком
-    pBubbleSort(vec, n);
+    pBubbleSort(vec_p, n);
 
-    //Вывод времени работы сортировки
-    double work = (double)(clock() - start) / CLOCKS_PER_SEC;
-    cout << "Time: " << work;
+    //Вывод времени работы параллельной сортировки
+    double work_p = (double)(clock() - start_parallel) / CLOCKS_PER_SEC;
+    cout << "Time parallel sort: " << work_p << endl;
+
+    //Заполнение массива для обычной сортировки рандомными значениями
+    vector<int> vec_np(n);
+    for (int i = 0; i < n; i++)
+        vec_np[i] = rand();
+
+    //Счётчик начала работы обычной сортировки
+    clock_t start_nonparallel = clock();
+
+    //Обычная сортировка пузырьком
+    bubbleSortOE(vec_np);
+
+    //Вывод времени работы обычной пузырьковой сортировки
+    double work_np = (double)(clock() - start_nonparallel) / CLOCKS_PER_SEC;
+    cout << "Time nonparallel sort: " << work_np;
 }
