@@ -38,38 +38,43 @@ void bubbleSortOE(vector<int>& arr) {
 /*
 Параллельная сортировка пузырьком
 Алгоритм:
-    1) Создаём массив подмассивов по количеству используемых потоков
-    2) Определяем максимальный элемент в исходном в массиве
-    3) Используя максимальный элемент и количество потоков, определяем разбиение для более удобного распределения элементов на подмассивы
-    4) Добавляем в подмассивы (с номерами от 1 до NUM_THREADS - 1) элементы, не забывая удалять из основного массива
-    5) Оставшиеся элементы добавляем в подмассив с номером NUM_THREADS
-    6) Создаём вектор потоков и для каждого подмассива запускаем свой поток
+    1) Разбиваем исходный массив на две части (чётную/нечётную)
+    2) Создвём два потока, в которых сортируем эти части
+    3) Сливаем отсортированные подмассивы обратно в один
 */
 void pBubbleSort(vector<int>& arr, int n) {
-    vector<vector<int>> sublists(NUM_THREADS);
+    int NUM_THREADS = 2;
+    vector<int> evenPhase, oddPhase;
 
-    int split = *max_element(arr.begin(), arr.end()) / NUM_THREADS;
-
-    for (size_t i = 1; i < NUM_THREADS; i++) {
-        for (int j = 0; j < arr.size(); j++) {
-            if (arr[j] < split * i) {
-                auto iter = arr.begin() + j;
-                sublists[i - 1].push_back(arr[j]);
-                arr.erase(iter);
-            }
-        }
-    }
-    sublists[NUM_THREADS - 1] = arr;
-
-    vector<thread> threads(NUM_THREADS);
-
-    for (int i = 0; i < NUM_THREADS; i++) {
-        threads[i] = thread(bubbleSortOE, ref(sublists[i]));
+    for (int i = 0; i < n - 1; i = i + 2) {
+        evenPhase.push_back(arr[i]);
     }
 
-    for (int i = 0; i < NUM_THREADS; i++) {
-        threads[i].join();
+    for (int i = 1; i < n - 1; i = i + 2) {
+        oddPhase.push_back(arr[i]);
     }
+
+    thread first = thread(bubbleSortOE, ref(evenPhase));
+    thread second = thread(bubbleSortOE, ref(oddPhase));
+
+    first.join();
+    second.join();
+
+    int i = 0, j = 0, k = 0;
+
+    while (i < evenPhase.size() && j < oddPhase.size())
+    {
+        if (evenPhase[i] < oddPhase[j])
+            arr[k++] = evenPhase[i++];
+        else
+            arr[k++] = oddPhase[j++];
+    }
+
+    while (i < evenPhase.size())
+        arr[k++] = evenPhase[i++];
+
+    while (j < oddPhase.size())
+        arr[k++] = oddPhase[j++];
 }
 
 int main() {
