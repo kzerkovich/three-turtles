@@ -44,11 +44,9 @@ void pBubbleSort(vector<int>& arr, int n) {
 
     for (int i = 0; i < n - 1; i = i + 2) {
         evenPhase.push_back(arr[i]);
+        oddPhase.push_back(arr[i + 1]);
     }
 
-    for (int i = 1; i < n - 1; i = i + 2) {
-        oddPhase.push_back(arr[i]);
-    }
 
     thread first = thread(bubbleSortOE, ref(evenPhase));
     thread second = thread(bubbleSortOE, ref(oddPhase));
