@@ -6,9 +6,6 @@
 
 using namespace std;
 
-//Количество используемых потоков
-int NUM_THREADS = 12;
-
 /*
 Стандартная сортировка пузырьком по принципу чётное/нечётное
 Пока массив не отсортирован выполняются две стадии:
@@ -39,7 +36,6 @@ void bubbleSortOE(vector<int>& arr) {
 Параллельная сортировка пузырьком
 */
 void pBubbleSort(vector<int>& arr, int n) {
-    int NUM_THREADS = 2;
     vector<int> evenPhase, oddPhase;
 
     for (int i = 0; i < n - 1; i = i + 2) {
